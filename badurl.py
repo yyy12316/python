@@ -15,9 +15,6 @@ for q in range(0,100,1):
     res = urlopen(ret)
     contents = res.read()
     soup = BeautifulSoup(contents, "html.parser")
-    #print("豆瓣电影TOP250" + "\n" + " 影片名              评分       评价人数     链接 ")
-
-    #df_ret = DataFrame(columns=[" 影片名","评分","评价人数","链接 "])
 
     
     

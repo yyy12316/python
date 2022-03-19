@@ -55,3 +55,49 @@ plt.plot(x,y)
 plt.xlabel('基分类器数量k')
 plt.ylabel('模型预测准确率')
 plt.show()
+
+
+
+#使用找到的最佳基分类器数构建最佳随机森林
+rfc = RandomForestClassifier(n_estimators=k,random_state=2,oob_score=True)
+#oob_score=True表示使用袋外数据进行模型效果评估
+rfc = rfc.fit(X_train,y_train)
+print(rfc.estimators_)#用列表存储生成的62个基分类器信息
+
+#查看森林中基分类器的随机状态值
+for i in range(len(rfc.estimators_)):
+    print(i,rfc.estimators_[i].random_state)
+
+print (rfc.oob_score_)#0.9509836612204068
+
+
+print ('col:',x_col) #打印特征项，方便下面查看特征项的重要性
+print(list((rfc.feature_importances_).flatten()))#系数反映每个特征的影响力。越大表示该特征在分类中起到的作用越大
+#将特征名和特征重要性保存为1个数据框
+feature_importance_df = pd.DataFrame({'featurename':x_col,'importance':np.abs(rfc.feature_importances_)})
+feature_importance_df = feature_importance_df.sort_values(by='importance',ascending=False)#根据特征重要性，进行降序排列
+#print(feature_importance_df)
+
+#只保留特征重要性大于0.0001的记录
+feature_importance_df = feature_importance_df[feature_importance_df['importance']>0.0001]
+print(feature_importance_df)
+
+#将特征重要性绘制成柱状图
+plt.figure(figsize=[5,5])
+import matplotlib.pyplot as plt
+location = np.arange(len(feature_importance_df['featurename']))#即np.arange(3),生成0、1、2，作为y轴的坐标值
+#print(location)
+importance = feature_importance_df['importance']
+
+#barh用于绘制水平状的柱状图
+plt.barh(y=location, width=importance)
+'''
+y=location设置柱状图的y坐标.
+width=importances 表示柱状图的长度由特征重要性的值确定，特征越重要，柱状图越长。
+'''
+plt.yticks(ticks=location, labels=feature_importance_df['featurename'])#ticks用于指定y坐标轴位置，labels指定在坐标轴上显示的标签内容
+plt.tick_params(labelsize=6)
+plt.xlabel('Importances')
+plt.xlim(0, 0.5)
+plt.title('Features Importances')
+plt.show()
